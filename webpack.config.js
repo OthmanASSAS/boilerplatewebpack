@@ -16,6 +16,10 @@ module.exports = {
         exclude: /(node_modules)/,
         use: ['babel-loader'],
       },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   plugins: [
@@ -30,6 +34,6 @@ module.exports = {
     open: false,
     contentBase: './dist',
     inline: true,
-    port: 4000,
+    port: 8080,
   },
 };
