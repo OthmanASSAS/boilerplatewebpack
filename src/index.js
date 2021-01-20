@@ -12,13 +12,17 @@ form.addEventListener('submit', (event) => {
 });
 
 const todos = [
-  { text: 'je suis une todo', done: false },
-  { text: 'faire du JavaScript', done: true },
+  { text: 'je suis une todo', done: false, editMode: true },
+  { text: 'faire du JavaScript', done: true, editMode: false },
 ];
 
 const displayTodo = () => {
   const todosNode = todos.map((todo, index) => {
-    return createTodoElement(todo, index);
+    if (todo.editMode) {
+      return createTodoEditElement(todo, index);
+    } else {
+      return createTodoElement(todo, index);
+    }
   });
   ul.innerHTML = '';
   ul.append(...todosNode);
@@ -26,12 +30,21 @@ const displayTodo = () => {
 
 const createTodoElement = (todo, index) => {
   const li = document.createElement('li');
+
   const buttonDelete = document.createElement('button');
-  buttonDelete.innerHTML = 'Supprimer !';
+  buttonDelete.innerHTML = 'Supprimer';
   buttonDelete.addEventListener('click', (event) => {
     event.stopPropagation();
     deleteTodo(index);
   });
+
+  const buttonEdit = document.createElement('button');
+  buttonEdit.innerHTML = 'Edit';
+  buttonEdit.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleEditMode(index);
+  });
+
   li.innerHTML = `
 	<span class="todo ${todo.done ? 'done' : ''}"></span>
 	<p>${todo.text}</p>
@@ -39,7 +52,31 @@ const createTodoElement = (todo, index) => {
   li.addEventListener('click', () => {
     toggleTodo(index);
   });
-  li.appendChild(buttonDelete);
+  li.append(buttonEdit, buttonDelete);
+  return li;
+};
+
+const createTodoEditElement = (todo, index) => {
+  const li = document.createElement('li');
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = todo.text;
+
+  const buttonSave = document.createElement('button');
+  buttonSave.innerHTML = 'Save';
+  buttonSave.addEventListener('click', () => {
+    editTodo(index, input);
+  });
+
+  const buttonCancel = document.createElement('button');
+  buttonCancel.innerHTML = 'Cancel';
+  buttonCancel.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleEditMode(index);
+  });
+
+  li.append(input, buttonCancel, buttonSave);
   return li;
 };
 
@@ -55,6 +92,18 @@ const deleteTodo = (index) => {
 
 const toggleTodo = (index) => {
   todos[index].done = !todos[index].done;
+  displayTodo();
+};
+
+const toggleEditMode = (index) => {
+  todos[index].editMode = !todos[index].editMode;
+  displayTodo();
+};
+
+const editTodo = (index, input) => {
+  const value = input.value;
+  todos[index].text = value;
+  todos[index].editMode = false;
   displayTodo();
 };
 displayTodo();
